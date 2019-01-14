@@ -59,7 +59,7 @@ export default (props => {
   }
 
   const onChange = (key, value) => {
-    if (name === 'healthcheck') {
+    if (key === 'healthcheck') {
       setFormState(() => {
         return {
           ...formState,
@@ -73,7 +73,7 @@ export default (props => {
       setFormState(() => {
         return {
           ...formState,
-          [name]: value
+          [key]: value
         }
       })
     }
