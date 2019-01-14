@@ -1,12 +1,12 @@
 import { Link } from 'gatsby'
 import PropTypes from 'prop-types'
 import React from 'react'
-import { Heading } from '@primer/components'
+import { Heading } from '@shopify/polaris'
 
 const Header = ({ siteTitle }) => (
   <div
     style={{
-      background: `rebeccapurple`,
+      background: `#5563c1`,
       marginBottom: `1.45rem`,
     }}
   >
@@ -17,7 +17,7 @@ const Header = ({ siteTitle }) => (
         padding: `1.45rem 1.0875rem`,
       }}
     >
-      <Heading mb={1}>
+      <Heading element="h1">
         <Link
           to="/"
           style={{
