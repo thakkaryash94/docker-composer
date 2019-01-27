@@ -1,5 +1,6 @@
 import React from 'react'
 import { Link, graphql } from 'gatsby'
+import MDXRenderer from 'gatsby-mdx/mdx-renderer'
 
 import Bio from '../components/Bio'
 import Layout from '../components/Layout'
@@ -8,14 +9,14 @@ import { rhythm, scale } from '../utils/typography'
 
 class TemplatePostTemplate extends React.Component {
   render() {
-    const template = this.props.data.markdownRemark
+    const { mdx: template } = this.props.data
     const siteTitle = this.props.data.site.siteMetadata.title
     const { previous, next } = this.props.pageContext
 
     return (
       <Layout location={this.props.location} title={siteTitle}>
-        <SEO title={template.frontmatter.title} description={template.excerpt} />
-        <h1>{template.frontmatter.title}</h1>
+        <SEO title={template.frontmatter.title} />
+        <h1>{template.title}</h1>
         <p
           style={{
             ...scale(-1 / 5),
@@ -24,9 +25,9 @@ class TemplatePostTemplate extends React.Component {
             marginTop: rhythm(-1),
           }}
         >
-          {template.frontmatter.date}
+          {template.updatedAt}
         </p>
-        <div dangerouslySetInnerHTML={{ __html: template.html }} />
+        <MDXRenderer>{template.code.body}</MDXRenderer>
         <hr
           style={{
             marginBottom: rhythm(1),
@@ -46,14 +47,14 @@ class TemplatePostTemplate extends React.Component {
           <li>
             {previous && (
               <Link to={previous.fields.slug} rel="prev">
-                ← {previous.frontmatter.title}
+                ← {previous.title}
               </Link>
             )}
           </li>
           <li>
             {next && (
               <Link to={next.fields.slug} rel="next">
-                {next.frontmatter.title} →
+                {next.title} →
               </Link>
             )}
           </li>
@@ -66,20 +67,22 @@ class TemplatePostTemplate extends React.Component {
 export default TemplatePostTemplate
 
 export const pageQuery = graphql`
-  query TemplateBySlug($slug: String!) {
+  query($slug: String!) {
     site {
       siteMetadata {
         title
         author
       }
     }
-    markdownRemark(fields: { slug: { eq: $slug } }) {
+    mdx(fields: { slug: { eq: $slug } }) {
       id
       excerpt(pruneLength: 160)
-      html
       frontmatter {
         title
         date(formatString: "MMMM DD, YYYY")
+      }
+      code {
+        body
       }
     }
   }

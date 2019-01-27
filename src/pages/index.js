@@ -26,8 +26,7 @@ export default () => {
       {/* <DropZone
         onDrop={(files, acceptedFiles, rejectedFiles) => {
           setDropped(acceptedFiles)
-        }}
-      ></DropZone> */}
+        }} /> */}
       <ServiceForm initialState={initialState || undefined} />
     </Layout>
   )

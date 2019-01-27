@@ -21,4 +21,8 @@ const onServiceWorkerUpdateFound = () => {
   }
 }
 
-export { onServiceWorkerUpdateFound }
+import { wrapRootElement as wrap } from './wrap-root-element'
+
+const wrapRootElement = wrap
+
+export { onServiceWorkerUpdateFound, wrapRootElement }

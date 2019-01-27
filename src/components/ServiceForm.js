@@ -19,6 +19,7 @@ export default (props => {
   const [labelState, setLabelValue] = useState([["", ""]])
   const [portState, setPortValue] = useState([["", ""]])
   const [envState, setEnvValue] = useState([["", ""]])
+  const [volumes, setVolumeValue] = useState([["", ""]])
 
   function json2yml() {
     formState.labels = fromPairs(labelState)
@@ -113,7 +114,8 @@ export default (props => {
   const StackData = [
     { label: "Labels", state: labelState, fn: setLabelValue },
     { label: "Ports", state: portState, fn: setPortValue },
-    { label: "Environment Variables", state: envState, fn: setEnvValue }
+    { label: "Environment Variables", state: envState, fn: setEnvValue },
+    { label: "Volumes", state: volumes, fn: setVolumeValue },
   ]
 
   return (
