@@ -1,6 +1,6 @@
-import React, { useState } from 'react'
+import React, { useState, Fragment } from 'react'
 import { safeDump } from 'js-yaml'
-import { Button, TextField, Select, Checkbox, Heading, Stack } from '@shopify/polaris'
+import { Button, InlineError, TextField, Select, Checkbox, Heading, Stack } from '@shopify/polaris'
 import { get, set, keys, includes, clone, pullAt, fromPairs, transform } from 'lodash'
 
 function rename(obj, key, newKey) {
@@ -98,6 +98,15 @@ export default (props => {
     })
   }
 
+  function addService() {
+    setServiceState(() => {
+      return {
+        ...serviceState,
+        service: {}
+      }
+    })
+  }
+
   function deleteAt(state, index, fn) {
     fn(() => {
       pullAt(state, index)
@@ -105,9 +114,9 @@ export default (props => {
     })
   }
 
-  function changeServiceState(value) {
+  function changeServiceState(index, value) {
     setServiceState(() => {
-      return rename(serviceState, keys(serviceState)[0], value)
+      return rename(serviceState, keys(serviceState)[index], value)
     })
   }
 
@@ -121,26 +130,33 @@ export default (props => {
   return (
     <div className="App">
       <form onSubmit={(e) => downloadService(e)}>
-        <TextField label="Name" error={'service name required'} value={keys(serviceState)[0] || ''} onChange={value => changeServiceState(value)} />
-        <TextField label="Image" value={formState.image} onChange={value => onChange("image", value)} />
-        <TextField label="Container Name" value={formState.container_name} onChange={value => onChange("container_name", value)} />
-        <Select label="Restart" options={restartOptions} onChange={value => onChange("restart", value)} value={formState.restart} />
-        <Heading>Healthcheck<Checkbox label="healthcheck" labelHidden checked={formState.healthcheck ? formState.healthcheck.disable : false} onChange={value => onChange("healthcheck", value)} /></Heading>
-        {StackData.map((stack, index) => (
-          <Stack key={index} wrap={true} alignment="leading" vertical={true} spacing="tight">
-            <Heading element="h5">{stack.label}</Heading>
-            {stack.state.map((label, index) => (
-              <Stack.Item fill key={index}>
-                <Stack distribution="fill" spacing="tight">
-                  <TextField label="Name" placeholder="key" labelHidden value={get(stack.state, `[${index}][0]`, '')} onChange={value => onNestedChange(`[${index}][0]`, value, stack.state, stack.fn)} />
-                  <TextField label="Name" placeholder="value" labelHidden value={get(stack.state, `[${index}][1]`, '')} onChange={value => { onNestedChange(`[${index}][1]`, value, stack.state, stack.fn) }} />
-                  <Button icon="delete" onClick={() => deleteAt(stack.state, index, stack.fn)} />
-                </Stack>
-              </Stack.Item>
+        <Heading element='h1'>Services</Heading>
+        {Object.keys(serviceState).map((service, index) => (
+          <Fragment key={index}>
+            <TextField label="Name" error={'service name required'} value={keys(serviceState)[index] || ''} onChange={value => changeServiceState(index, value)} />
+            <TextField label="Image" value={formState.image} onChange={value => onChange("image", value)} />
+            <TextField label="Container Name" value={formState.container_name} onChange={value => onChange("container_name", value)} />
+            <Select label="Restart" options={restartOptions} onChange={value => onChange("restart", value)} value={formState.restart} />
+            <Heading>Healthcheck<Checkbox label="healthcheck" labelHidden checked={formState.healthcheck ? formState.healthcheck.disable : false} onChange={value => onChange("healthcheck", value)} /></Heading>
+            {StackData.map((stack, index) => (
+              <Stack key={index} wrap={true} alignment="leading" vertical={true} spacing="tight">
+                <Heading element="h5">{stack.label}</Heading>
+                {stack.state.map((label, index) => (
+                  <Stack.Item fill key={index}>
+                    <Stack distribution="fill" spacing="tight">
+                      <TextField label="Name" placeholder="key" labelHidden value={get(stack.state, `[${index}][0]`, '')} onChange={value => onNestedChange(`[${index}][0]`, value, stack.state, stack.fn)} />
+                      <TextField label="Name" placeholder="value" labelHidden value={get(stack.state, `[${index}][1]`, '')} onChange={value => { onNestedChange(`[${index}][1]`, value, stack.state, stack.fn) }} />
+                      <Button icon="delete" onClick={() => deleteAt(stack.state, index, stack.fn)} />
+                    </Stack>
+                  </Stack.Item>
+                ))}
+                <Button icon="add" onClick={() => addNested(stack.state, stack.fn)} />
+              </Stack>
             ))}
-            <Button icon="add" onClick={() => addNested(stack.state, stack.fn)} />
-          </Stack>
+          </Fragment>
         ))}
+        <Button icon="delete">Delete Service</Button>
+        <Button icon="add" onClick={() => addService()}>Add Service</Button>
         <Button primary submit={true}>Download</Button>
       </form>
     </div>
