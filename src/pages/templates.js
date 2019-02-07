@@ -4,7 +4,6 @@ import { Link, graphql } from 'gatsby'
 import Bio from '../components/Bio'
 import Layout from '../components/Layout'
 import SEO from '../components/seo'
-import { rhythm } from '../utils/typography'
 
 class TemplateIndex extends React.Component {
   render() {
@@ -25,7 +24,7 @@ class TemplateIndex extends React.Component {
             <div key={node.fields.slug}>
               <h3
                 style={{
-                  marginBottom: rhythm(1 / 4),
+                  marginBottom: "12px",
                 }}
               >
                 <Link style={{ boxShadow: `none` }} to={node.fields.slug}>

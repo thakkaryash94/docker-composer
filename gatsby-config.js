@@ -10,12 +10,6 @@ module.exports = {
   plugins: [
     `gatsby-plugin-react-helmet`,
     {
-      resolve: `gatsby-plugin-typography`,
-      options: {
-        pathToConfigModule: `src/utils/typography`,
-      },
-    },
-    {
       resolve: `gatsby-source-filesystem`,
       options: {
         path: `${__dirname}/content/templates`,
@@ -113,12 +107,6 @@ module.exports = {
         icon: `src/images/docker-composer-144x144.png`, // This path is relative to the root of the site.
       },
     },
-    `gatsby-plugin-offline`,
-    {
-      resolve: `gatsby-plugin-typography`,
-      options: {
-        pathToConfigModule: `src/utils/typography`,
-      },
-    },
+    `gatsby-plugin-offline`
   ],
 }

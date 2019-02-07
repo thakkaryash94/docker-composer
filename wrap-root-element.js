@@ -1,7 +1,8 @@
-import React from 'react'
+import { AppProvider } from '@shopify/polaris'
 import { MDXProvider } from '@mdx-js/tag'
-import { Code } from './src/components/code'
+import React from 'react'
 import { preToCodeBlock } from 'mdx-utils'
+import { Code } from './src/components/code'
 
 // components is its own object outside of render so that the references to
 // components are stable
@@ -18,5 +19,5 @@ const components = {
   },
 }
 export const wrapRootElement = ({ element }) => (
-  <MDXProvider components={components}>{element}</MDXProvider>
+  <AppProvider><MDXProvider components={components}>{element}</MDXProvider></AppProvider>
 )

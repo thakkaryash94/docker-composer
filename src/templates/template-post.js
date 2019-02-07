@@ -5,7 +5,6 @@ import MDXRenderer from 'gatsby-mdx/mdx-renderer'
 import Bio from '../components/Bio'
 import Layout from '../components/Layout'
 import SEO from '../components/seo'
-import { rhythm, scale } from '../utils/typography'
 
 class TemplatePostTemplate extends React.Component {
   render() {
@@ -19,10 +18,9 @@ class TemplatePostTemplate extends React.Component {
         <h1>{template.title}</h1>
         <p
           style={{
-            ...scale(-1 / 5),
             display: `block`,
-            marginBottom: rhythm(1),
-            marginTop: rhythm(-1),
+            marginBottom: "12px",
+            marginTop: "12px",
           }}
         >
           {template.updatedAt}
@@ -30,7 +28,7 @@ class TemplatePostTemplate extends React.Component {
         <MDXRenderer>{template.code.body}</MDXRenderer>
         <hr
           style={{
-            marginBottom: rhythm(1),
+            marginBottom: "12px",
           }}
         />
         <Bio />

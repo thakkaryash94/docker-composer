@@ -1,7 +1,3 @@
-// custom typefaces
-import 'typeface-montserrat'
-import 'typeface-merriweather'
-
 /**
  * Implement Gatsby's Browser APIs in this file.
  *
