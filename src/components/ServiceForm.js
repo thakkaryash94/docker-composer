@@ -1,7 +1,9 @@
-import React, { useState, Fragment } from 'react'
+import React, { useReducer, useState, Fragment } from 'react'
 import { safeDump } from 'js-yaml'
-import { Button, InlineError, TextField, Select, Checkbox, Heading, Stack } from '@shopify/polaris'
+import produce from "immer"
+import { Button, TextStyle, InlineError, TextField, Select, Checkbox, Heading, Stack } from '@shopify/polaris'
 import { get, set, keys, includes, clone, pullAt, fromPairs, transform } from 'lodash'
+
 
 function rename(obj, key, newKey) {
   if (includes(keys(obj), key)) {
@@ -11,10 +13,30 @@ function rename(obj, key, newKey) {
   return obj
 }
 
+const reducer = (state, action) =>
+  produce(state, draft => {
+    switch (action.type) {
+      case 'container_image':
+        draft.container_name = action.value
+        return
+      case 'restart':
+        draft.restart = action.value
+        return
+      case 'healthcheck':
+        draft.healthcheck = {
+          disable: action.value
+        }
+        return
+    }
+  })
+
+const initialState = {}
+
 export default (props => {
 
   // hooks
-  const [formState, setFormState] = useState(props.initialState || {})
+  const [state, dispatch] = useReducer(reducer, initialState)
+  const [formState, setFormState] = useState(props.initialState || initialState)
   const [serviceState, setServiceState] = useState({ service: {} })
   const [labelState, setLabelValue] = useState([["", ""]])
   const [portState, setPortValue] = useState([["", ""]])
@@ -81,7 +103,9 @@ export default (props => {
   }
 
   function onNestedChange(location, value, state, fn) {
-    fn(() => set(state, location, value))
+    fn(() => {
+      return set(state, location, value)
+    })
   }
 
   const restartOptions = [
@@ -93,7 +117,7 @@ export default (props => {
 
   function addNested(state, fn) {
     fn(() => {
-      state.push([])
+      state.push(["", ""])
       return state
     })
   }
@@ -135,9 +159,9 @@ export default (props => {
           <Fragment key={index}>
             <TextField label="Name" error={'service name required'} value={keys(serviceState)[index] || ''} onChange={value => changeServiceState(index, value)} />
             <TextField label="Image" value={formState.image} onChange={value => onChange("image", value)} />
-            <TextField label="Container Name" value={formState.container_name} onChange={value => onChange("container_name", value)} />
-            <Select label="Restart" options={restartOptions} onChange={value => onChange("restart", value)} value={formState.restart} />
-            <Heading>Healthcheck<Checkbox label="healthcheck" labelHidden checked={formState.healthcheck ? formState.healthcheck.disable : false} onChange={value => onChange("healthcheck", value)} /></Heading>
+            <TextField label="Container Name" value={state.container_name} onChange={value => dispatch({ type: "container_image", index, value })} />
+            <Select label="Restart" options={restartOptions} value={state.restart} onChange={value => dispatch({ type: "restart", index, value })} />
+            <TextStyle>Healthcheck<Checkbox label="healthcheck" labelHidden checked={state.healthcheck ? state.healthcheck.disable : false} onChange={value => dispatch({ type: "healthcheck", index, value })} /></TextStyle>
             {StackData.map((stack, index) => (
               <Stack key={index} wrap={true} alignment="leading" vertical={true} spacing="tight">
                 <Heading element="h5">{stack.label}</Heading>
