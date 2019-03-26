@@ -4,6 +4,14 @@ import produce from "immer"
 import { Button, TextStyle, InlineError, TextField, Select, Checkbox, Heading, Stack } from '@shopify/polaris'
 import { get, set, keys, includes, clone, pullAt, fromPairs, transform } from 'lodash'
 
+const IMAGE = 'IMAGE'
+const CONTAINER_NAME = 'CONTAINER_NAME'
+const RESTART = 'RESTART'
+const HEALTHCHECK = 'HEALTHCHECK'
+const LABELS = 'LABELS'
+const PORTS = 'PORTS'
+const ENVIRONMENT = 'ENVIRONMENT'
+const VOLUMES = 'VOLUMES'
 
 function rename(obj, key, newKey) {
   if (includes(keys(obj), key)) {
@@ -16,44 +24,58 @@ function rename(obj, key, newKey) {
 const reducer = (state, action) =>
   produce(state, draft => {
     switch (action.type) {
-      case 'container_image':
-        draft.container_name = action.value
+      case IMAGE:
+        draft.services[action.serviceIndex].image = action.value
         return
-      case 'restart':
-        draft.restart = action.value
+      case CONTAINER_NAME:
+        draft.services[action.serviceIndex].container_name = action.value
         return
-      case 'healthcheck':
-        draft.healthcheck = {
+      case RESTART:
+        draft.services[action.serviceIndex].restart = action.value
+        return
+      case HEALTHCHECK:
+        draft.services[action.serviceIndex].healthcheck = {
           disable: action.value
         }
+        return
+      case LABELS:
+      case PORTS:
+      case ENVIRONMENT:
+      case VOLUMES:
+        set(draft.services[action.serviceIndex][action.key], action.location, action.value)
         return
     }
   })
 
-const initialState = {}
+const initialState = {
+  services: [{
+    labels: [["", ""]],
+    ports: [["", ""]],
+    environment: [["", ""]],
+    volumes: ["", ""],
+  }]
+}
 
 export default (props => {
 
   // hooks
   const [state, dispatch] = useReducer(reducer, initialState)
-  const [formState, setFormState] = useState(props.initialState || initialState)
   const [serviceState, setServiceState] = useState({ service: {} })
-  const [labelState, setLabelValue] = useState([["", ""]])
-  const [portState, setPortValue] = useState([["", ""]])
-  const [envState, setEnvValue] = useState([["", ""]])
-  const [volumes, setVolumeValue] = useState([["", ""]])
 
   function json2yml() {
-    formState.labels = fromPairs(labelState)
-    formState.environment = fromPairs(envState)
-    formState.ports = transform(fromPairs(portState), (result, value, key) => {
+    let service = clone(state.services[0])
+    service.labels = fromPairs(service.labels)
+    service.environment = fromPairs(service.environment)
+    service.ports = transform(fromPairs(service.ports), (result, value, key) => {
       result.push(`${key}:${value}`)
       return true
     }, [])
     const finalFormData = {
       version: '3',
       services: {
-        [keys(serviceState)[0]]: formState
+        [keys(state.services)[0]]: {
+          ...service
+        }
       }
     }
     try {
@@ -79,33 +101,6 @@ export default (props => {
     tempLink.href = csvURL
     tempLink.setAttribute('download', 'docker-compose.yml')
     tempLink.click()
-  }
-
-  const onChange = (key, value) => {
-    if (key === 'healthcheck') {
-      setFormState(() => {
-        return {
-          ...formState,
-          healthcheck: {
-            disable: value
-          }
-        }
-      })
-    }
-    else {
-      setFormState(() => {
-        return {
-          ...formState,
-          [key]: value
-        }
-      })
-    }
-  }
-
-  function onNestedChange(location, value, state, fn) {
-    fn(() => {
-      return set(state, location, value)
-    })
   }
 
   const restartOptions = [
@@ -145,32 +140,32 @@ export default (props => {
   }
 
   const StackData = [
-    { label: "Labels", state: labelState, fn: setLabelValue },
-    { label: "Ports", state: portState, fn: setPortValue },
-    { label: "Environment Variables", state: envState, fn: setEnvValue },
-    { label: "Volumes", state: volumes, fn: setVolumeValue },
+    { label: "Labels", key: 'labels', type: LABELS },
+    { label: "Ports", key: 'ports', type: PORTS },
+    { label: "Environment Variables", key: 'environment', type: ENVIRONMENT },
+    { label: "Volumes", key: 'volumes', type: VOLUMES },
   ]
 
   return (
     <div className="App">
       <form onSubmit={(e) => downloadService(e)}>
         <Heading element='h1'>Services</Heading>
-        {Object.keys(serviceState).map((service, index) => (
-          <Fragment key={index}>
-            <TextField label="Name" error={'service name required'} value={keys(serviceState)[index] || ''} onChange={value => changeServiceState(index, value)} />
-            <TextField label="Image" value={formState.image} onChange={value => onChange("image", value)} />
-            <TextField label="Container Name" value={state.container_name} onChange={value => dispatch({ type: "container_image", index, value })} />
-            <Select label="Restart" options={restartOptions} value={state.restart} onChange={value => dispatch({ type: "restart", index, value })} />
-            <TextStyle>Healthcheck<Checkbox label="healthcheck" labelHidden checked={state.healthcheck ? state.healthcheck.disable : false} onChange={value => dispatch({ type: "healthcheck", index, value })} /></TextStyle>
+        {state.services.map((service, serviceIndex) => (
+          <Fragment key={serviceIndex}>
+            <TextField label="Name" error={'service name required'} value={keys(state.services)[serviceIndex] || ''} onChange={value => changeServiceState(serviceIndex, value)} />
+            <TextField label="Image" value={service.image} onChange={value => dispatch({ type: IMAGE, serviceIndex, value })} />
+            <TextField label="Container Name" value={service.container_name} onChange={value => dispatch({ type: CONTAINER_NAME, serviceIndex, value })} />
+            <Select label="Restart" options={restartOptions} value={service.restart} onChange={value => dispatch({ type: RESTART, serviceIndex, value })} />
+            <TextStyle>Healthcheck<Checkbox label="healthcheck" labelHidden checked={service.healthcheck ? service.healthcheck.disable : false} onChange={value => dispatch({ type: HEALTHCHECK, serviceIndex, value })} /></TextStyle>
             {StackData.map((stack, index) => (
               <Stack key={index} wrap={true} alignment="leading" vertical={true} spacing="tight">
                 <Heading element="h5">{stack.label}</Heading>
-                {stack.state.map((label, index) => (
-                  <Stack.Item fill key={index}>
+                {service[stack.key].map((data, stackIndex) => (
+                  <Stack.Item fill key={stackIndex}>
                     <Stack distribution="fill" spacing="tight">
-                      <TextField label="Name" placeholder="key" labelHidden value={get(stack.state, `[${index}][0]`, '')} onChange={value => onNestedChange(`[${index}][0]`, value, stack.state, stack.fn)} />
-                      <TextField label="Name" placeholder="value" labelHidden value={get(stack.state, `[${index}][1]`, '')} onChange={value => { onNestedChange(`[${index}][1]`, value, stack.state, stack.fn) }} />
-                      <Button icon="delete" onClick={() => deleteAt(stack.state, index, stack.fn)} />
+                      <TextField label="Name" placeholder="key" labelHidden value={get(service, `${stack.key}[${stackIndex}][0]`, '')} onChange={value => dispatch({ type: stack.type, key: stack.key, serviceIndex, location: `[${stackIndex}][${0}]`, value: value })} />
+                      <TextField label="Name" placeholder="value" labelHidden value={get(service, `${stack.key}[${stackIndex}][1]`, '')} onChange={value => dispatch({ type: stack.type, key: stack.key, serviceIndex, location: `[${stackIndex}][${1}]`, value: value })} />
+                      <Button icon="delete" onClick={() => deleteAt(stack.state, stackIndex, stack.fn)} />
                     </Stack>
                   </Stack.Item>
                 ))}
