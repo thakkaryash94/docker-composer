@@ -44,9 +44,9 @@ const Ports = {
   key: 'ports',
   name: 'Ports',
   action: {
-    ADD: 'ADD_PORTS',
-    UPDATE: 'UPDATE_PORTS',
-    REMOVE: 'REMOVE_PORTS',
+    ADD: 'ADD_PORT',
+    UPDATE: 'UPDATE_PORT',
+    REMOVE: 'REMOVE_PORT',
   }
 }
 
@@ -64,13 +64,21 @@ const Volumes = {
   key: 'volumes',
   name: 'Volumes',
   action: {
-    ADD: 'ADD_VOLUMES',
-    UPDATE: 'UPDATE_VOLUMES',
-    REMOVE: 'REMOVE_VOLUMES',
+    ADD: 'ADD_VOLUME',
+    UPDATE: 'UPDATE_VOLUME',
+    REMOVE: 'REMOVE_VOLUME',
   }
 }
 
-const ADD_STACK_DATA = 'ADD_STACK_DATA'
+const Services = {
+  key: 'services',
+  name: 'Services',
+  action: {
+    ADD: 'ADD_SERVICE',
+    UPDATE: 'UPDATE_SERVICE',
+    REMOVE: 'REMOVE_SERVICE',
+  }
+}
 
 export {
   Image,
@@ -81,5 +89,5 @@ export {
   Ports,
   Environment,
   Volumes,
-  ADD_STACK_DATA
+  Services
 }
