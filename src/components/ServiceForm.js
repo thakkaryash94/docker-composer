@@ -21,7 +21,7 @@ export default (props => {
 
   return (
     <div className="App">
-      <form onSubmit={(e) => downloadCompose(e)}>
+      <form onSubmit={(e) => downloadCompose(e, state)}>
         <Heading element='h1'>Services</Heading>
         {state.services.map((service, serviceIndex) => (
           <Fragment key={serviceIndex}>

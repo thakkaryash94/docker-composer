@@ -1,12 +1,12 @@
 import { safeDump } from 'js-yaml'
-
+import { clone, fromPairs, keys, transform } from 'lodash'
 export function json2yml(state) {
   let service = clone(state.services[0])
-  service.labels = transform(fromPairs(service.ports), (result, value, key) => {
+  service.labels = transform(fromPairs(service.labels), (result, value, key) => {
     result.push(`${key}=${value}`)
     return true
   }, [])
-  service.environment = transform(fromPairs(service.ports), (result, value, key) => {
+  service.environment = transform(fromPairs(service.environment), (result, value, key) => {
     result.push(`${key}=${value}`)
     return true
   }, [])
@@ -14,7 +14,7 @@ export function json2yml(state) {
     result.push(`${key}:${value}`)
     return true
   }, [])
-  service.volumes = transform(fromPairs(service.ports), (result, value, key) => {
+  service.volumes = transform(fromPairs(service.volumes), (result, value, key) => {
     result.push(`${key}:${value}`)
     return true
   }, [])
@@ -40,9 +40,10 @@ export function json2yml(state) {
 }
 
 
-export function downloadCompose(e) {
+export function downloadCompose(e, state) {
   e.preventDefault()
   const yamlData = json2yml(state)
+  // console.log(yamlData)
   const data = new Blob([yamlData], { type: 'text/yaml' })
   const csvURL = window.URL.createObjectURL(data)
   const tempLink = document.createElement('a')
