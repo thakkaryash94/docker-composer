@@ -3,6 +3,8 @@
   <a href="https://docker-composer.netlify.com">Docker Composer</a>
 </h1>
 
+[![Netlify Status](https://api.netlify.com/api/v1/badges/7727fe9b-e09f-4421-a467-f88d16ecd67a/deploy-status)](https://app.netlify.com/sites/docker-composer/deploys)
+
 Docker composoer is UI tool to generate or update docker-compose.yml file.
 
 <img src="./docs/images/docker-composer.png" alt="Docker Composer" width="500"/>
