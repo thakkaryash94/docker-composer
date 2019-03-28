@@ -1,30 +1,54 @@
 import { safeDump } from 'js-yaml'
-import { clone, fromPairs, keys, transform } from 'lodash'
+import { cloneDeep, fromPairs, transform } from 'lodash'
+
 export function json2yml(state) {
-  let service = clone(state.services[0])
-  service.labels = transform(fromPairs(service.labels), (result, value, key) => {
-    result.push(`${key}=${value}`)
-    return true
-  }, [])
-  service.environment = transform(fromPairs(service.environment), (result, value, key) => {
-    result.push(`${key}=${value}`)
-    return true
-  }, [])
-  service.ports = transform(fromPairs(service.ports), (result, value, key) => {
-    result.push(`${key}:${value}`)
-    return true
-  }, [])
-  service.volumes = transform(fromPairs(service.volumes), (result, value, key) => {
-    result.push(`${key}:${value}`)
-    return true
-  }, [])
+  const finalServices = {}
+  const services = cloneDeep(state.services)
+  for (let serviceIndex = 0; serviceIndex < services.length; serviceIndex++) {
+    let service = services[serviceIndex]
+
+    service.healthcheck.disable = !service.healthcheck.disable
+
+    if (service.labels.length > 0) {
+      service.labels = transform(fromPairs(service.labels), (result, value, key) => {
+        result.push(`${key}=${value}`)
+        return true
+      }, [])
+    } else {
+      delete service.labels
+    }
+
+    if (service.environment.length > 0) {
+      service.environment = transform(fromPairs(service.environment), (result, value, key) => {
+        result.push(`${key}=${value}`)
+        return true
+      }, [])
+    } else {
+      delete service.environment
+    }
+
+    if (service.ports.length > 0) {
+      service.ports = transform(fromPairs(service.ports), (result, value, key) => {
+        result.push(`${key}:${value}`)
+        return true
+      }, [])
+    } else {
+      delete service.ports
+    }
+
+    if (service.volumes.length > 0) {
+      service.volumes = transform(fromPairs(service.volumes), (result, value, key) => {
+        result.push(`${key}:${value}`)
+        return true
+      }, [])
+    } else {
+      delete service.volumes
+    }
+    finalServices[state.serviceList[serviceIndex]] = service
+  }
   const finalFormData = {
     version: '3',
-    services: {
-      [keys(state.services)[0]]: {
-        ...service
-      }
-    }
+    services: finalServices
   }
   try {
     const yamlString = safeDump(finalFormData, {

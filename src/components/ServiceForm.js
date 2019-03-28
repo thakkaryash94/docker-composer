@@ -26,11 +26,11 @@ export default (props => {
         {state.services.map((service, serviceIndex) => (
           <Fragment key={serviceIndex}>
             <TextField label="Name" error={'service name required'} value={state.serviceList[serviceIndex] || ''} onChange={value => dispatch({ type: Services.action.UPDATE, serviceIndex, value })} />
-            <TextField label="Image" value={service.image} onChange={value => dispatch({ type: Image.action.UPDATE, serviceIndex, value })} />
-            <TextField label="Container Name" value={service.container_name} onChange={value => dispatch({ type: ContainerName.action.UPDATE, serviceIndex, value })} />
-            <Select label="Restart" options={restartOptions} value={service.restart} onChange={value => dispatch({ type: Restart.action.UPDATE, serviceIndex, value })} />
+            <TextField label="Image" value={service.image || ''} onChange={value => dispatch({ type: Image.action.UPDATE, serviceIndex, value })} />
+            <TextField label="Container Name" value={service.container_name || ''} onChange={value => dispatch({ type: ContainerName.action.UPDATE, serviceIndex, value })} />
+            <Select label="Restart" options={restartOptions} value={service.restart || false} onChange={value => dispatch({ type: Restart.action.UPDATE, serviceIndex, value })} />
             <br />
-            <TextStyle>Healthcheck<Checkbox label="healthcheck" labelHidden checked={service.healthcheck ? service.healthcheck.disable : false} onChange={value => dispatch({ type: HealthCheck.action.UPDATE, serviceIndex, value })} /></TextStyle>
+            <TextStyle>Healthcheck<Checkbox label="healthcheck" labelHidden checked={service.healthcheck ? service.healthcheck.disable : false} onChange={value => dispatch({ type: HealthCheck.action.UPDATE, serviceIndex, value: value })} /></TextStyle>
             <br /><br />
             {StackData.map((stack, index) => (
               <Stack key={index} wrap={true} alignment="leading" vertical={true} spacing="tight">

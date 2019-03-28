@@ -3,6 +3,9 @@ import { Image, ContainerName, Restart, HealthCheck, Labels, Ports, Environment,
 import { set, pullAt } from 'lodash'
 
 const service = {
+  healthcheck: {
+    disable: true
+  },
   labels: [['', '']],
   ports: [['', '']],
   environment: [['', '']],
@@ -31,12 +34,8 @@ const reducer = (state, action) =>
         return
 
       case HealthCheck.action.UPDATE:
-        if (action.value) {
-          draft.services[serviceIndex][HealthCheck.key] = {
-            disable: action.value
-          }
-        } else {
-          delete draft.services[serviceIndex][HealthCheck.key]
+        draft.services[serviceIndex][HealthCheck.key] = {
+          disable: action.value
         }
         return
 
