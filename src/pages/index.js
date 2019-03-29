@@ -1,33 +1,49 @@
 import React, { useState } from 'react'
-import { safeLoad } from 'js-yaml'
-import { DropZone } from '@shopify/polaris'
-import Layout from '../components/Layout'
+import { DropZone, Layout, Card } from '@shopify/polaris'
+import AppLayout from '../components/Layout'
 import SEO from '../components/seo'
 import ServiceForm from '../components/ServiceForm'
+import { useStateValue } from '../../state'
+import { yaml2json } from '../utils'
+import { Services } from '../constants'
 
 export default () => {
-  const [initialState, setInitialState] = useState({})
+  const [state, dispatch] = useStateValue()
+  const [filesState, setFilesState] = useState([])
 
   function setDropped(acceptedFiles) {
     // Do something with files
+    setFilesState(() => acceptedFiles)
     var file = acceptedFiles[0]
     const reader = new FileReader();
     reader.onload = (event) => {
-      const yamlData = event.target.result
-      const jsonData = safeLoad(yamlData, 'utf8')
-      setInitialState(() => jsonData)
-    };
+      const stateData = yaml2json(event.target.result)
+      dispatch({ action: Services.action.SET, state: stateData })
+    }
     reader.readAsText(file)
   }
 
+  const fileUpload = !filesState.length && <DropZone.FileUpload />
   return (
-    <Layout>
+    <AppLayout>
       <SEO title="Home" keywords={[`docker`, `compose`, `yaml`]} />
-      {/* <DropZone
-        onDrop={(files, acceptedFiles, rejectedFiles) => {
-          setDropped(acceptedFiles)
-        }} /> */}
-      <ServiceForm initialState={initialState || undefined} />
-    </Layout>
+      <Layout>
+        {filesState.length === 0 &&
+          <Layout.Section secondary>
+            <DropZone
+              onDrop={(files, acceptedFiles, rejectedFiles) => {
+                setDropped(acceptedFiles)
+              }}>
+              {fileUpload}
+            </DropZone>
+          </Layout.Section>
+        }
+        <Layout.Section>
+          <Card title="Services" sectioned>
+            <ServiceForm />
+          </Card>
+        </Layout.Section>
+      </Layout>
+    </AppLayout>
   )
 }
