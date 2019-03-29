@@ -1,4 +1,4 @@
-import { safeDump } from 'js-yaml'
+import { safeDump, safeLoad } from 'js-yaml'
 import { cloneDeep, fromPairs, transform } from 'lodash'
 
 export function json2yml(state) {
@@ -74,4 +74,20 @@ export function downloadCompose(e, state) {
   tempLink.href = csvURL
   tempLink.setAttribute('download', 'docker-compose.yml')
   tempLink.click()
+}
+
+export function yaml2json(yamlData) {
+  const jsonData = safeLoad(yamlData, 'utf8')
+  const services = jsonData.services
+  const draftServices = {
+    serviceList: Object.keys(services),
+    services: []
+  }
+  for (const service in services) {
+    if (services.hasOwnProperty(service)) {
+      const element = services[service]
+      draftServices.services.push(element)
+    }
+  }
+  return draftServices
 }
