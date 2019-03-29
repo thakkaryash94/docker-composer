@@ -62,7 +62,7 @@ const reducer = (state, action) =>
 
       case Services.action.ADD:
         draft.serviceList[draft.serviceList.length] = ''
-        draft.services.push(service)
+        draft.services.push(serviceModel)
         return
 
       case Services.action.UPDATE:
