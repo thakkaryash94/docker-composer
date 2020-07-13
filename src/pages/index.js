@@ -15,8 +15,8 @@ export default () => {
     // Do something with files
     setFilesState(() => acceptedFiles)
     var file = acceptedFiles[0]
-    const reader = new FileReader();
-    reader.onload = (event) => {
+    const reader = new FileReader()
+    reader.onload = event => {
       const stateData = yaml2json(event.target.result)
       dispatch({ action: Services.action.SET, state: stateData })
     }
@@ -28,16 +28,17 @@ export default () => {
     <AppLayout>
       <SEO title="Home" keywords={[`docker`, `compose`, `yaml`]} />
       <Layout>
-        {filesState.length === 0 &&
+        {/* {filesState.length === 0 && (
           <Layout.Section secondary>
             <DropZone
               onDrop={(files, acceptedFiles, rejectedFiles) => {
                 setDropped(acceptedFiles)
-              }}>
+              }}
+            >
               {fileUpload}
             </DropZone>
           </Layout.Section>
-        }
+        )} */}
         <Layout.Section>
           <Card title="Services" sectioned>
             <ServiceForm />

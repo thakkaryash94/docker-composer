@@ -4,7 +4,6 @@ import { StaticQuery, graphql } from 'gatsby'
 
 import Header from './header'
 import '@shopify/polaris/styles.css'
-// import './layout.css'
 
 const Layout = ({ children }) => (
   <StaticQuery

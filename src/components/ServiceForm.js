@@ -1,5 +1,5 @@
-import React, { Fragment } from 'react'
-import { Button, TextStyle, InlineError, TextField, Select, Checkbox, Heading, Stack } from '@shopify/polaris'
+import React, { Fragment, useState } from 'react'
+import { Button, TextStyle, Modal, Popover, TextContainer, ActionList, TextField, Select, Checkbox, Heading, Stack } from '@shopify/polaris'
 import { get } from 'lodash'
 import { useStateValue } from '../../state'
 import { Image, ContainerName, Restart, HealthCheck, Labels, Ports, Environment, Volumes, Services } from '../constants'
@@ -9,6 +9,8 @@ export default (() => {
 
   // hooks
   const [state, dispatch] = useStateValue()
+  const [serviceOptionsState, setServiceOptionsState] = useState(false)
+  const [stackOptionsState, setStackOptionsState] = useState(false)
 
   const restartOptions = [
     { label: 'No', value: 'no' },
@@ -22,11 +24,24 @@ export default (() => {
 
   const serviceNameErrorMessage = `Service name can't be blank`
 
+  const stackOptionsButton = (
+    <Button icon="add" onClick={() => setStackOptionsState(!stackOptionsState)}>
+      Add
+    </Button>
+  )
+
+  const serviceOptionsButton = (
+    <Button icon="add" onClick={() => setServiceOptionsState(!serviceOptionsState)}>
+      Add
+    </Button>
+  )
+
   return (
     <div className="App">
       <form onSubmit={(e) => downloadCompose(e, state)}>
         {state.services.map((service, serviceIndex) => (
           <Fragment key={serviceIndex}>
+            <Heading>Service</Heading><Button icon="delete" onClick={() => dispatch({ type: Services.action.REMOVE, location: serviceIndex })}>Delete Service</Button>
             <TextField label="Name" value={state.serviceList[serviceIndex] || ''} onChange={value => dispatch({ type: Services.action.UPDATE, serviceIndex, value })} helpText={
               <span>{serviceNameErrorMessage}</span>
             } />
@@ -51,15 +66,113 @@ export default (() => {
                 <Button icon="add" onClick={() => dispatch({ type: stack.action.ADD, key: stack.key, serviceIndex })} />
               </Stack>
             ))}
+            <Popover
+              active={serviceOptionsState}
+              activator={serviceOptionsButton}
+              onClose={() => setServiceOptionsState(false)}
+            >
+              <ActionList
+                items={[
+                  {
+                    content: 'labels',
+                    onAction: () => {
+                      console.log('Service clicked')
+                    },
+                  },
+                  {
+                    content: 'expose',
+                    onAction: () => {
+                      console.log('Network clicked')
+                    },
+                  },
+                  {
+                    content: 'env_file',
+                    onAction: () => {
+                      console.log('Volume clicked')
+                    },
+                  },
+                ]}
+              />
+            </Popover>
             <br />
-            <Button icon="delete" onClick={() => dispatch({ type: Services.action.REMOVE, location: serviceIndex })}>Delete Service</Button>
           </Fragment>
         ))}
         <br /><br />
-        <Button icon="add" onClick={() => dispatch({ type: Services.action.ADD })}>Add Service</Button>
+        <Popover
+          active={stackOptionsState}
+          activator={stackOptionsButton}
+          onClose={() => setStackOptionsState(false)}
+        >
+          <ActionList
+            items={[
+              {
+                content: 'Serive',
+                helpText: 'Contains configuration that is applied to each container started for that service.',
+                onAction: () => {
+                  dispatch({ type: Services.action.ADD })
+                },
+              },
+              {
+                content: 'Network',
+                helpText: 'lets you create more complex topologies and specify custom network drivers and options.',
+                onAction: () => {
+                  console.log('Network clicked')
+                },
+              },
+              {
+                content: 'Volume',
+                helpText: 'Mount host paths or named volumes, specified as sub-options to a service.',
+                onAction: () => {
+                  console.log('Volume clicked')
+                },
+              },
+            ]}
+          />
+        </Popover>
         <br /><br />
         <Button primary submit={true}>Download</Button>
       </form>
+      <Modal
+        open={true}
+        // onClose={this.toggleModal}
+        title="Add Network"
+        primaryAction={{
+          content: 'Close',
+          // onAction: this.toggleModal,
+        }}
+      >
+        <Modal.Section>
+          <Stack>
+            <Stack.Item>
+              <TextContainer>
+                <p>
+                  You can share this discount link with your customers via
+                  email or social media. Your discount will be automatically
+                  applied at checkout.
+                  </p>
+              </TextContainer>
+            </Stack.Item>
+            <Stack.Item fill>
+              <TextField
+                // ref={this.bindNode}
+                label="Network Name"
+                // onFocus={this.handleFocus}
+                // value={DISCOUNT_LINK}
+                onChange={() => { }}
+              />
+            </Stack.Item>
+          </Stack>
+          <Stack.Item fill>
+            <TextField
+              // ref={this.bindNode}
+              label="Network Name"
+              // onFocus={this.handleFocus}
+              // value={DISCOUNT_LINK}
+              onChange={() => { }}
+            />
+          </Stack.Item>
+        </Modal.Section>
+      </Modal>
     </div>
   )
 })
